@@ -9,6 +9,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -75,13 +78,30 @@ class UserControllerTest {
 
     }
 
+    @Test
+    public void whenGetUsersWithPage_then_returnPageOfUsers() throws Exception {
+
+        List<User> listOfUsers = new ArrayList<>();
+        listOfUsers.add(User.builder().firstName("Ramesh").lastName("Fadatare").email("ramesh@gmail.com").build());
+        listOfUsers.add(User.builder().firstName("Tony").lastName("Stark").email("tony@gmail.com").build());
+        Page<User> pages = new PageImpl<User>(listOfUsers, PageRequest.of(0,1), listOfUsers.size());
+        given(userService.getUserWithPagination(0,2)).willReturn(pages);
+
+        ResultActions response = mockMvc.perform(get("/api/users/pages?page=0&size=2"));
+
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.content.size()",
+                        is(listOfUsers.size())));
+
+    }
 
     @Test
     public void whenGetUserById_thenReturnUserObject() throws Exception {
         long userId = 1L;
         UserDto userDto = UserDto.builder()
                 .firstName("Ramesh")
-                .lastName("Fadatare")
+                .lastName("Silva")
                 .email("ramesh@gmail.com")
                 .build();
         given(userService.getUserById(userId)).willReturn(userDto);
@@ -153,6 +173,23 @@ class UserControllerTest {
         response.andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(jsonPath("$.size()",
+                        is(listOfUsers.size())));
+    }
+
+    @Test
+    public void when_searchWithPage_then_ReturnPageOfUsers() throws Exception {
+        String q = "key";
+        List<User> listOfUsers = new ArrayList<>();
+        listOfUsers.add(User.builder().firstName("key").lastName("Silva").email("silva@gmail.com").build());
+        listOfUsers.add(User.builder().firstName("Tony").lastName("key").email("tony@gmail.com").build());
+        Page<User> pages = new PageImpl<User>(listOfUsers, PageRequest.of(0,2), listOfUsers.size());
+        given(userService.searchWithPagination(q,PageRequest.of(0, 2))).willReturn(pages);
+
+        ResultActions response = mockMvc.perform(get("/api/users/search/pages?q=key&page=0&size=2"));
+
+        response.andExpect(status().isOk())
+                .andDo(print())
+                .andExpect(jsonPath("$.content.size()",
                         is(listOfUsers.size())));
     }
 
