@@ -17,7 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
             "Or u.email LIKE CONCAT('%', :query, '%')")
     List<User> searchUsers(String query);
 
-    Page<User> findByFirstNameContainingOrLastNameContaining(String q,String q1, Pageable pageable);
+    Page<User> findByFirstNameContainingOrLastNameContainingOrEmailContaining(String q,String q1,String q2, Pageable pageable);
 
 
 }

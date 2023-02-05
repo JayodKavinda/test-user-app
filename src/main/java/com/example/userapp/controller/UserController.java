@@ -77,7 +77,7 @@ public class UserController {
     @Operation(summary = "Delete existing user with given ID")
     @DeleteMapping(value = "/{id}")
     public ResponseEntity<Long> deleteUser(@PathVariable Long id) {
-        //userService.deleteUserById(id);
+        userService.deleteUserById(id);
         return new ResponseEntity<>(id, HttpStatus.OK);
     }
 

@@ -39,7 +39,7 @@ class UserRepositoryTest {
                 .build();
 
         userRepository.save(user1);
-        Assertions.assertThat(user1.getId()).isGreaterThan(0);
+        Assertions.assertThat(user1.getId()).isPositive();
 
     }
 
@@ -60,7 +60,7 @@ class UserRepositoryTest {
                 .build();
         userRepository.save(user2);
         List<User> users = userRepository.findAll();
-        Assertions.assertThat(users.size()).isEqualTo(2);
+        Assertions.assertThat(users).hasSize(2);
 
     }
 
@@ -119,24 +119,24 @@ class UserRepositoryTest {
         String keyword = "keyword";
 
         // Case 01
-        Page<User> result = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(0, 4));
+        Page<User> result = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(keyword, keyword,keyword, PageRequest.of(0, 4));
         Assertions.assertThat(result.getNumberOfElements()).isEqualTo(2L);
         Assertions.assertThat(result.getContent()).contains(user1, user2);
 
         // Case 02
-        Page<User> result1 = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(0, 1));
+        Page<User> result1 = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(keyword, keyword,keyword, PageRequest.of(0, 1));
         Assertions.assertThat(result1.getNumberOfElements()).isEqualTo(1L);
         Assertions.assertThat(result1.getContent()).contains(user1);
 
 
         // Case 03
-        Page<User> result2 = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(1, 1));
+        Page<User> result2 = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(keyword, keyword,keyword, PageRequest.of(1, 1));
         Assertions.assertThat(result2.getNumberOfElements()).isEqualTo(1L);
         Assertions.assertThat(result2.getContent()).contains(user2);
 
         // Case 04
-        Page<User> result3 = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(2, 2));
-        Assertions.assertThat(result3.getNumberOfElements()).isEqualTo(0L);
+        Page<User> result3 = userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(keyword, keyword,keyword, PageRequest.of(2, 2));
+        Assertions.assertThat(result3.getNumberOfElements()).isZero();
         Assertions.assertThat(result3.getContent()).doesNotContain(user1, user2);
     }
 

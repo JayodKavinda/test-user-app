@@ -143,7 +143,7 @@ class UserServiceImplTest {
         when(modelMapper.map(user1, UserDto.class)).thenReturn(userDto1);
         when(modelMapper.map(user2, UserDto.class)).thenReturn(userDto2);
         List<UserDto> returnUsers = userService.getAllUsers();
-        Assertions.assertThat(returnUsers.size()).isEqualTo(listOfUsers.size());
+
         Assertions.assertThat(returnUsers).containsExactlyElementsOf(listOfUsers);
 
 
@@ -162,7 +162,7 @@ class UserServiceImplTest {
         when(userRepository.findAll(PageRequest.of(0, 2))).thenReturn(pages);
 
         Page<User> returnUsers = userService.getUserWithPagination(0, 2);
-        Assertions.assertThat(returnUsers.getContent().size()).isEqualTo(users.size());
+        Assertions.assertThat(returnUsers.getContent()).hasSize(users.size());
         Assertions.assertThat(returnUsers).containsExactlyElementsOf(users);
     }
 
@@ -178,7 +178,6 @@ class UserServiceImplTest {
         when(userRepository.searchUsers(q)).thenReturn(users);
 
         List<User> returnUsers = userService.searchUser(q);
-        Assertions.assertThat(returnUsers.size()).isEqualTo(users.size());
         Assertions.assertThat(returnUsers).containsExactlyElementsOf(users);
     }
 
@@ -191,10 +190,10 @@ class UserServiceImplTest {
         users.add(user1);
         users.add(user2);
         Page<User> pages = new PageImpl<>(users, PageRequest.of(0, 2), users.size());
-        when(userRepository.findByFirstNameContainingOrLastNameContaining(q, q, PageRequest.of(0, 2))).thenReturn(pages);
+        when(userRepository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(q, q, q,PageRequest.of(0, 2))).thenReturn(pages);
 
         Page<User> returnUsers = userService.searchWithPagination(q, PageRequest.of(0, 2));
-        Assertions.assertThat(returnUsers.getContent().size()).isEqualTo(users.size());
+        Assertions.assertThat(returnUsers.getContent()).hasSize(users.size());
         Assertions.assertThat(returnUsers).containsExactlyElementsOf(users);
 
     }

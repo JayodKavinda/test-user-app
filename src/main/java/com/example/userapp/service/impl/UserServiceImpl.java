@@ -70,13 +70,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> searchUser(String query) {
-        List<User> users = repository.searchUsers(query);
-        return users;
+        return repository.searchUsers(query);
     }
 
     @Override
     public Page<User> searchWithPagination(String query, Pageable pageable) {
-        return repository.findByFirstNameContainingOrLastNameContaining(query, query, pageable);
+        return repository.findByFirstNameContainingOrLastNameContainingOrEmailContaining(query, query, query, pageable);
     }
 
     private User mapToEntity(UserDto userDto) {
