@@ -12,6 +12,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
+
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -30,7 +31,7 @@ class UserRepositoryTest {
     @Test
     @Order(1)
     @Rollback(value = false)
-    public void whenSaveUser_then_returnUserId(){
+    public void whenSaveUser_then_returnUserId() {
         User user1 = User.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -44,14 +45,14 @@ class UserRepositoryTest {
 
     @Test
     @Order(2)
-    public void whenCallFindById_then_returnCorrectIdUser(){
+    public void whenCallFindById_then_returnCorrectIdUser() {
         User user = userRepository.findById(1L).get();
         Assertions.assertThat(user.getId()).isEqualTo(1L);
     }
 
     @Test
     @Order(3)
-    public void whenFindAll_then_returnCorrectSize(){
+    public void whenFindAll_then_returnCorrectSize() {
         User user2 = User.builder()
                 .firstName("firstNameNew")
                 .lastName("lastNameNew")
@@ -66,10 +67,10 @@ class UserRepositoryTest {
     @Test
     @Order(4)
     @Rollback(value = false)
-    public void whenSetNewEmail_then_updateEmail(){
+    public void whenSetNewEmail_then_updateEmail() {
         User user = userRepository.findById(1L).get();
         user.setEmail("changedName@test.com");
-        User updatedUser= userRepository.save(user);
+        User updatedUser = userRepository.save(user);
         Assertions.assertThat(updatedUser.getEmail()).isEqualTo("changedName@test.com");
 
     }
@@ -77,12 +78,12 @@ class UserRepositoryTest {
     @Test
     @Order(5)
     @Rollback(value = false)
-    public void whenDeleteUser_then_returnNullUser(){
+    public void whenDeleteUser_then_returnNullUser() {
         User user = userRepository.findById(1L).get();
         userRepository.delete(user);
         User newUser = null;
         Optional<User> optionalUser = userRepository.findById(1L);
-        if(optionalUser.isPresent()){
+        if (optionalUser.isPresent()) {
             newUser = optionalUser.get();
         }
         Assertions.assertThat(newUser).isNull();
@@ -120,7 +121,7 @@ class UserRepositoryTest {
         // Case 01
         Page<User> result = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(0, 4));
         Assertions.assertThat(result.getNumberOfElements()).isEqualTo(2L);
-        Assertions.assertThat(result.getContent()).contains(user1,user2);
+        Assertions.assertThat(result.getContent()).contains(user1, user2);
 
         // Case 02
         Page<User> result1 = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(0, 1));
@@ -136,7 +137,7 @@ class UserRepositoryTest {
         // Case 04
         Page<User> result3 = userRepository.findByFirstNameContainingOrLastNameContaining(keyword, keyword, PageRequest.of(2, 2));
         Assertions.assertThat(result3.getNumberOfElements()).isEqualTo(0L);
-        Assertions.assertThat(result3.getContent()).doesNotContain(user1,user2);
+        Assertions.assertThat(result3.getContent()).doesNotContain(user1, user2);
     }
 
-    }
+}

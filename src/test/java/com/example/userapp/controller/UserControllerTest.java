@@ -80,11 +80,10 @@ class UserControllerTest {
 
     @Test
     public void whenGetUsersWithPage_then_returnPageOfUsers() throws Exception {
-
         List<User> listOfUsers = new ArrayList<>();
         listOfUsers.add(User.builder().firstName("Ramesh").lastName("Fadatare").email("ramesh@gmail.com").build());
         listOfUsers.add(User.builder().firstName("Tony").lastName("Stark").email("tony@gmail.com").build());
-        Page<User> pages = new PageImpl<User>(listOfUsers, PageRequest.of(0,1), listOfUsers.size());
+        Page<User> pages = new PageImpl<>(listOfUsers, PageRequest.of(0, 1), listOfUsers.size());
         given(userService.getUserWithPagination(0,2)).willReturn(pages);
 
         ResultActions response = mockMvc.perform(get("/api/users/pages?page=0&size=2"));
@@ -120,17 +119,14 @@ class UserControllerTest {
     @Test
     public void whenGetUserByInvalidId_thenReturnEmpty() throws Exception {
         long userId = 100L;
-
         given(userService.getUserById(userId)).willThrow(new ResourceNotFoundException("user", userId));
         ResultActions response = mockMvc.perform(get("/api/employees/{id}", userId));
         response.andExpect(status().isNotFound())
                 .andDo(print());
-
     }
 
     @Test
     public void whenUpdateUser_thenReturnUpdatedUser() throws Exception {
-
         long userId = 1L;
         UserDto savedUser = UserDto.builder()
                 .firstName("Ramesh")
@@ -160,7 +156,6 @@ class UserControllerTest {
 
     @Test
     public void whenSearchUsersBuyKeyword_then_ReturnsListOfUsers() throws Exception {
-
         long userId = 1L;
         String q = "key";
         List<User> listOfUsers = new ArrayList<>();
@@ -182,7 +177,7 @@ class UserControllerTest {
         List<User> listOfUsers = new ArrayList<>();
         listOfUsers.add(User.builder().firstName("key").lastName("Silva").email("silva@gmail.com").build());
         listOfUsers.add(User.builder().firstName("Tony").lastName("key").email("tony@gmail.com").build());
-        Page<User> pages = new PageImpl<User>(listOfUsers, PageRequest.of(0,2), listOfUsers.size());
+        Page<User> pages = new PageImpl<>(listOfUsers, PageRequest.of(0,2), listOfUsers.size());
         given(userService.searchWithPagination(q,PageRequest.of(0, 2))).willReturn(pages);
 
         ResultActions response = mockMvc.perform(get("/api/users/search/pages?q=key&page=0&size=2"));
