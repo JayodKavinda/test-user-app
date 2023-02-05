@@ -12,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.test.annotation.Rollback;
-
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
@@ -31,7 +30,7 @@ class UserRepositoryTest {
     @Test
     @Order(1)
     @Rollback(value = false)
-    public void checkUserId_when_saveUser(){
+    public void whenSaveUser_then_returnUserId(){
         User user1 = User.builder()
                 .firstName("firstName")
                 .lastName("lastName")
@@ -39,7 +38,6 @@ class UserRepositoryTest {
                 .build();
 
         userRepository.save(user1);
-
         Assertions.assertThat(user1.getId()).isGreaterThan(0);
 
     }
@@ -49,7 +47,6 @@ class UserRepositoryTest {
     public void whenCallFindById_then_returnCorrectIdUser(){
         User user = userRepository.findById(1L).get();
         Assertions.assertThat(user.getId()).isEqualTo(1L);
-
     }
 
     @Test
@@ -118,7 +115,6 @@ class UserRepositoryTest {
         entityManager.persist(user3);
         entityManager.flush();
 
-        // When
         String keyword = "keyword";
 
         // Case 01

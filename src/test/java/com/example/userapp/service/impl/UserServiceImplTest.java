@@ -4,34 +4,121 @@ import com.example.userapp.entity.User;
 import com.example.userapp.exception.ResourceNotFoundException;
 import com.example.userapp.payload.UserDto;
 import com.example.userapp.repository.UserRepository;
-import com.example.userapp.service.UserService;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.test.annotation.Rollback;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 class UserServiceImplTest {
 
-    @Autowired
-    private UserService userService;
+    @InjectMocks
+    private UserServiceImpl userService;
 
-//    @Test
-//    public void whenDeleteUser_then_returnNullUser(){
-//        long userId = 100L;
-//
-//
-//        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class).
-//        isThrownBy(()->{userService.getUserById(userId);}).
-//        withMessage("user not found");
-//
-//    }
+    @Mock
+    private UserRepository userRepository;
+
+    @Mock
+    private ModelMapper modelMapper;
+
+    @Test
+    public void whenGetByInvalidId_then_ThrowResourceNotFoundException() {
+        long userId = 1000L;
+        when(userRepository.getById(userId)).thenThrow(new RuntimeException());
+
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class).
+                isThrownBy(() -> {
+                    userService.getUserById(userId);
+                }).
+                withMessage("user not found for ID: 1000");
+
+    }
+
+    @Test
+    public void when_getUserById_then_ReturnUserObject() {
+        UserDto userDto = UserDto.builder()
+                .firstName("firstNameNew")
+                .lastName("lastNameNew")
+                .email("emailNew@gmail.com")
+                .build();
+
+        User user = User.builder()
+                .firstName("firstNameNew")
+                .lastName("lastNameNew")
+                .email("emailNew@gmail.com")
+                .build();
+
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+
+        when(modelMapper.map(user, UserDto.class)).thenReturn(userDto);
+        UserDto returnUser = userService.getUserById(1L);
+        Assertions.assertThat(returnUser.getFirstName()).isEqualTo("firstNameNew");
+        Assertions.assertThat(returnUser.getLastName()).isEqualTo("lastNameNew");
+        Assertions.assertThat(returnUser.getEmail()).isEqualTo("emailNew@gmail.com");
+
+    }
+
+    @Test
+    public void when_getUsers_then_ReturnUserObject() {
+
+        List<UserDto> listOfUsers = new ArrayList<>();
+        UserDto userDto1 = UserDto.builder().firstName("Ramesh").lastName("Silva").email("ramesh@gmail.com").build();
+        UserDto userDto2 = UserDto.builder().firstName("Tony").lastName("Stark").email("tony@gmail.com").build();
+        listOfUsers.add(userDto1);
+        listOfUsers.add(userDto2);
+
+        List<User> users = new ArrayList<>();
+        User user1 = User.builder().firstName("Ramesh").lastName("Silva").email("ramesh@gmail.com").build();
+        User user2 = User.builder().firstName("Tony").lastName("Stark").email("tony@gmail.com").build();
+        users.add(user1);
+        users.add(user2);
+
+        when(userRepository.findAll()).thenReturn(users);
+
+        when(modelMapper.map(user1, UserDto.class)).thenReturn(userDto1);
+        when(modelMapper.map(user2, UserDto.class)).thenReturn(userDto2);
+        List<UserDto> returnUsers = userService.getAllUsers();
+        Assertions.assertThat(returnUsers.size()).isEqualTo(listOfUsers.size());
+        Assertions.assertThat(returnUsers).containsExactlyElementsOf(listOfUsers);
+
+
+    }
+
+    @Test
+    public void when_searchUserByKeyword_then_ReturnsListOfUsers() {
+        String q = "keyword";
+
+        List<User> users = new ArrayList<>();
+        User user1 = User.builder().firstName("keyword").lastName("Silva").email("ramesh@gmail.com").build();
+        User user2 = User.builder().firstName("Tony").lastName("keyword").email("tony@gmail.com").build();
+        users.add(user1);
+        users.add(user2);
+
+        when(userRepository.searchUsers(q)).thenReturn(users);
+
+        List<User> returnUsers = userService.searchUser(q);
+        Assertions.assertThat(returnUsers.size()).isEqualTo(users.size());
+        Assertions.assertThat(returnUsers).containsExactlyElementsOf(users);
+
+    }
+
+    @Test
+    public void whenDeleteUserById_then_verifyRepositoryDeleteMethodCalls() {
+        long userId = 1L;
+        User user = User.builder().firstName("keyword").lastName("Silva").email("ramesh@gmail.com").build();
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        userService.deleteUserById(userId);
+        verify(userRepository).delete(user);
+    }
 
 }
