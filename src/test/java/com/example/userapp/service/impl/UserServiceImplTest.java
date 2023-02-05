@@ -207,4 +207,26 @@ class UserServiceImplTest {
         verify(userRepository).delete(user);
     }
 
+    @Test
+    public void whenDeleteUserByInvalidId_then_throwResouceNotFoundException() {
+        long userId = 1000L;
+        when(userRepository.getById(userId)).thenThrow(new RuntimeException());
+
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class).
+                isThrownBy(() -> userService.deleteUserById(userId)).
+                withMessage("user not found for ID: 1000");
+    }
+
+    @Test
+    public void whenUpdateUserByInvalidId_then_throwResouceNotFoundException() {
+        long userId = 1000L;
+
+        UserDto userDto = UserDto.builder().firstName("Ramesh").lastName("Silva").email("ramesh@gmail.com").build();
+        when(userRepository.getById(userId)).thenThrow(new RuntimeException());
+
+        Assertions.assertThatExceptionOfType(ResourceNotFoundException.class).
+                isThrownBy(() -> userService.updateUser(userDto,userId)).
+                withMessage("user not found for ID: 1000");
+    }
+
 }
